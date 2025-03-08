@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import mainImage from '../assets/main.png';
 import { Link, useNavigate } from "react-router-dom";
 import API_BASE_URL from "./Config";
+import { Menu, X } from "lucide-react";
 
 
 const LandingPage = () => {
@@ -10,9 +11,15 @@ const LandingPage = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [formData, setFormData] = useState({ fullName: "", email: "", password: "", age: "" });
   const [error, setError] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   const navigate = useNavigate(); // For redirection
 
-
+  // Toggle mobile menu
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
 
 
   // Toggle modal visibility
@@ -88,6 +95,10 @@ const LandingPage = () => {
               Services
             </a>
           </nav>
+          {/* Mobile Menu Button */}
+          <button className="md:hidden" onClick={toggleMobileMenu}>
+            {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
           <button
             onClick={toggleModal}
             className="bg-black text-white px-6 py-2 rounded-full font-semibold hidden md:block">
@@ -95,6 +106,17 @@ const LandingPage = () => {
           </button>
         </div>
       </header>
+
+      {/* Mobile Navigation Menu */}
+      {isMobileMenuOpen && (
+        <div className="absolute top-16 left-0 w-full bg-white shadow-lg z-20 p-6 flex flex-col space-y-4 text-center">
+          <a href="#home" className="text-gray-600 font-medium hover:text-black">Home</a>
+          <Link to="/about" className="text-gray-600 font-medium hover:text-black">About</Link>
+          <a href="#technology" className="text-gray-600 font-medium hover:text-black">Technology</a>
+          <a href="#services" className="text-gray-600 font-medium hover:text-black">Services</a>
+          <button onClick={toggleModal} className="bg-black text-white px-6 py-2 rounded-full font-semibold">Login</button>
+        </div>
+      )}
 
       {/* Main Content Section */}
       <div className="flex flex-col md:flex-row items-center justify-between px-6 md:px-20 mt-20 md:mt-32">
@@ -122,8 +144,18 @@ const LandingPage = () => {
 
           {/* Buttons */}
           <div className="mt-8 flex justify-center md:justify-start space-x-4">
-            <button className="bg-black text-white px-6 py-3 rounded-full font-semibold">
-              <Link to="/chat">Open a Chat</Link>
+            <button
+              className="bg-black text-white px-6 py-3 rounded-full font-semibold"
+              onClick={() => {
+                const user = localStorage.getItem("token"); // Check if user is logged in
+                if (user) {
+                  navigate("/chat");
+                } else {
+                  toggleModal(); // Open the login modal if no user is logged in
+                }
+              }}
+            >
+              Open a Chat
             </button>
             <button className="border border-gray-400 text-gray-600 px-6 py-3 rounded-full font-semibold">
               Appointment
