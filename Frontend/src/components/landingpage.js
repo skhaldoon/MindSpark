@@ -3,6 +3,7 @@ import mainImage from '../assets/main.png';
 import { Link, useNavigate } from "react-router-dom";
 import API_BASE_URL from "./Config";
 import { Menu, X } from "lucide-react";
+import { faL } from "@fortawesome/free-solid-svg-icons";
 
 
 const LandingPage = () => {
@@ -13,6 +14,8 @@ const LandingPage = () => {
   const [error, setError] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
 
   const navigate = useNavigate(); // For redirection
 
@@ -20,6 +23,8 @@ const LandingPage = () => {
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
+
+
 
 
   // Toggle modal visibility
@@ -43,6 +48,7 @@ const LandingPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
     const endpoint = isSignUp ? "/api/auth/register" : "/api/auth/login";
     try {
@@ -66,6 +72,9 @@ const LandingPage = () => {
 
     } catch (err) {
       setError(err.message);
+    }
+    finally {
+      setLoading(false);
     }
   };
 
@@ -210,9 +219,20 @@ const LandingPage = () => {
                     placeholder="Enter your age" className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none" required />
                 </div>
               )}
-              <button type="submit" className="w-full bg-black text-white py-2 rounded-md font-semibold">
-                {isSignUp ? "Sign Up" : "Login"}
+              <button
+                type="submit"
+                className="w-full bg-black text-white py-2 rounded-md font-semibold flex justify-center items-center h-10"
+                disabled={loading} // Disable button when loading
+              >
+                {loading ? (
+                  <div className="flex justify-center items-center">
+                    <svg className="animate-spin h-6 w-6 border-4 border-white border-t-transparent rounded-full" viewBox="0 0 24 24"></svg>
+                  </div>
+                ) : (
+                  <span>{isSignUp ? "Sign Up" : "Login"}</span>
+                )}
               </button>
+
             </form>
 
             <div className="mt-4 text-center">

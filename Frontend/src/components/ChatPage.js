@@ -61,8 +61,8 @@ const ChatPage = () => {
         }
     }, [windowWidth]); // Runs every time `windowWidth` changes
 
-    
-    
+
+
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -250,8 +250,8 @@ const ChatPage = () => {
     const toggleSidebar = () => {
         setOpen((prevOpen) => !prevOpen); // ✅ Always toggle sidebar state
     };
-    
-    
+
+
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -414,14 +414,14 @@ const ChatPage = () => {
         <div className={`flex h-screen overflow-hidden  ${darkMode ? "bg-gray-900 text-white" : "bg-[#d9e4eb]"}`}>
             <nav className={`fixed top-0 w-full p-2 shadow-md z-50 flex justify-between items-center ${darkMode ? "bg-gray-900 text-white" : "bg-white-500 text-white"}`}>
                 <div className="flex items-center">
-                
+
                     <img src={icon} className="w-10 h-10 md:w-14 md:h-14 cursor-pointer" alt="Icon" />
                     <h2 className={`text-sm md:text-2xl font-bold mt-1 md:mt-2 cursor-pointer ${darkMode ? "text-white" : "text-black"}`}>MINDSPARK</h2>
-                    <div 
-                        onClick={toggleSidebar} 
+                    <div
+                        onClick={toggleSidebar}
                         className={`w-6 h-6 md:w-8 md:h-8 border-2 mt-1 md:mt-3 ml-1 border-gray-300 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-400`}
                     >
-                        <WidthNormalRoundedIcon sx={{fontSize: "18px"}} className={`w-2 h-2 md:w-6 md:h-6 ${darkMode ? "text-white" : "text-black"}`} />
+                        <WidthNormalRoundedIcon sx={{ fontSize: "18px" }} className={`w-2 h-2 md:w-6 md:h-6 ${darkMode ? "text-white" : "text-black"}`} />
                     </div>
 
 
@@ -614,7 +614,7 @@ const ChatPage = () => {
                     <div className={`flex-1 overflow-auto mt-4 p-4 rounded-md shadow-md ${darkMode ? "bg-gray-800 text-white" : "bg-white text-black"}`}>
                         {messages.map((msg, index) => (
                             <div key={index} className={`flex mb-4 ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
-                                {msg.sender !== "user" && <div className="w-8 h-8 bg-black rounded-full mr-2"></div>}
+                                {msg.sender !== "user" && <div className={`w-8 h-8 rounded-full mr-2 ${darkMode ? "bg-white" : "bg-black"}`}></div>}
                                 <div className={`p-3 rounded-lg max-w-lg ${msg.sender === "user" ? "bg-gray-200 text-white" : "bg-gray-200 text-gray-800"}`}>
                                     <p className="text-gray-800 font-medium">{msg.sender === "user" ? "You" : "AI"}</p>
                                     <p className="text-gray-600 text-sm">
@@ -678,8 +678,8 @@ const ChatPage = () => {
                 </main>
                 {/* Floating Button to Open Right Sidebar (Visible on Small Screens) */}
                 {!rightSidebarOpen && (
-                    <button 
-                        onClick={toggleRightSidebar} 
+                    <button
+                        onClick={toggleRightSidebar}
                         className="fixed top-3 mt-2 right-2 text-slate-700 hover:bg-slate-500 w-6 h-6 flex items-center justify-center rounded-full shadow-lg md:hidden z-50"
                     >
                         <FaBars size={12} />
@@ -690,8 +690,8 @@ const ChatPage = () => {
 
                 {/* Right Sidebar Backdrop (Closes on Click Outside - Mobile Only) */}
                 {rightSidebarOpen && window.innerWidth < 900 && (
-                    <div 
-                        className="fixed  inset-0 bg-black bg-opacity-50 z-40 md:hidden" 
+                    <div
+                        className="fixed  inset-0 bg-black bg-opacity-50 z-40 md:hidden"
                         onClick={toggleRightSidebar}
                     ></div>
                 )}
@@ -704,8 +704,8 @@ const ChatPage = () => {
                         md:w-1/4 md:static md:shadow-md md:translate-x-0`}
                 >
                     {/* Close Button (Only on Small Screens) */}
-                    <button 
-                        onClick={toggleRightSidebar} 
+                    <button
+                        onClick={toggleRightSidebar}
                         className="absolute top-4 right-4 text-gray-500 hover:text-black md:hidden"
                     >
                         <FaTimes size={20} />
@@ -740,38 +740,53 @@ const ChatPage = () => {
                 {showUpgradePopup && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
                         <div className="bg-white p-6 rounded-xl shadow-xl w-[400px] flex flex-col">
-                            <h2 className="text-2xl font-semibold text-center mb-6">Upgrade Your AI Model</h2>
-
+                            <h2 className={`text-2xl font-semibold text-center mb-6 ${darkMode ? "text-black" : "text-black"}`}>
+                                Upgrade Your AI Model
+                            </h2>
                             <div className="space-y-4">
                                 {/* Premium Model Option */}
                                 <button
-                                    className={`flex items-center justify-between w-full p-4 rounded-lg border transition-all ${tempSelectedModel === "premium"
-                                        ? "border-blue-500 bg-blue-50 shadow-md"
-                                        : "border-gray-300 hover:bg-gray-100"
+                                    className={`flex items-center justify-between w-full p-4 rounded-lg border transition-all shadow-md
+    ${darkMode
+                                            ? tempSelectedModel === "premium"
+                                                ? "bg-blue-900 text-white border-blue-400" // Selected in dark mode
+                                                : "bg-gray-800 text-white border-gray-600" // Unselected in dark mode
+                                            : tempSelectedModel === "premium"
+                                                ? "bg-blue-100 text-black border-blue-500" // Selected in light mode
+                                                : "bg-white text-black border-gray-300" // Unselected in light mode
                                         }`}
                                     onClick={() => handleTempSelection("premium")}
                                 >
                                     <div>
                                         <p className="font-medium text-lg">💎 Premium Model</p>
-                                        <p className="text-sm text-gray-500">Best performance & highest accuracy</p>
+                                        <p className="text-sm">Best performance & highest accuracy</p>
                                     </div>
-                                    <span className="text-blue-600 font-semibold">$200</span>
+                                    <span className="font-semibold">$200</span>
                                 </button>
+
+
+
 
                                 {/* Economical Model Option */}
                                 <button
-                                    className={`flex items-center justify-between w-full p-4 rounded-lg border transition-all ${tempSelectedModel === "economical"
-                                        ? "border-blue-500 bg-blue-50 shadow-md"
-                                        : "border-gray-300 hover:bg-gray-100"
+                                    className={`flex items-center justify-between w-full p-4 rounded-lg border transition-all shadow-md
+    ${darkMode
+                                            ? tempSelectedModel === "economical"
+                                                ? "bg-blue-900 text-white border-blue-400" // Selected in dark mode
+                                                : "bg-gray-800 text-white border-gray-600" // Unselected in dark mode
+                                            : tempSelectedModel === "economical"
+                                                ? "bg-blue-100 text-black border-blue-500" // Selected in light mode
+                                                : "bg-white text-black border-gray-300" // Unselected in light mode
                                         }`}
                                     onClick={() => handleTempSelection("economical")}
                                 >
                                     <div>
                                         <p className="font-medium text-lg">⚡ Economical Model</p>
-                                        <p className="text-sm text-gray-500">Affordable & optimized for cost efficiency</p>
+                                        <p className="text-sm">Affordable & optimized for cost efficiency</p>
                                     </div>
-                                    <span className="text-blue-600 font-semibold">$30</span>
+                                    <span className="font-semibold">$30</span>
                                 </button>
+
                             </div>
                             {/* Confirmation and Cancel Buttons */}
                             <div className="mt-4 flex justify-between">
