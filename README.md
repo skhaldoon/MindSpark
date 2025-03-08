@@ -8,7 +8,7 @@ hybrid model link: "https://mindspark121-Fastapi-Pyschiatry-HybridApproch.hf.spa
 simple rag mode link: "https://mindspark121-fastapi-psychiatry-simplerag.hf.space";
 deepseek model link: "https://mindspark121-fastapi-pyschiatry-deepseek.hf.space"; // Default model
 
-
+Deployed application link: https://mindspark-deploy.vercel.app/
 
 
 # MindSpark
