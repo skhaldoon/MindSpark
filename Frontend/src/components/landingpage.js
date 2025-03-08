@@ -73,9 +73,9 @@ const LandingPage = () => {
 
 
   return (
-    <div className="bg-[#d9e4eb] min-h-screen flex flex-col">
+    <div className="bg-[#d9e4eb] min-h-screen flex flex-col pt-5 md:pt-0 overflow-x-hidden">
       {/* Header Section */}
-      <header className="flex justify-between items-center px-6 md:px-20 py-4 bg-transparent absolute w-full z-10 mt-6">
+      <header className="fixed top-0 left-0 w-full bg-transparent backdrop-blur-md shadow-md z-50 flex justify-between items-center px-6 md:px-20 py-4 h-16 transition-all duration-300">
         <div className="text-2xl font-bold">MINDSPARK</div>
         <div className="flex items-center space-x-8">
           <nav className="hidden md:flex space-x-8">
@@ -109,13 +109,16 @@ const LandingPage = () => {
 
       {/* Mobile Navigation Menu */}
       {isMobileMenuOpen && (
-        <div className="absolute top-16 left-0 w-full bg-white shadow-lg z-20 p-6 flex flex-col space-y-4 text-center">
-          <a href="#home" className="text-gray-600 font-medium hover:text-black">Home</a>
-          <Link to="/about" className="text-gray-600 font-medium hover:text-black">About</Link>
-          <a href="#technology" className="text-gray-600 font-medium hover:text-black">Technology</a>
-          <a href="#services" className="text-gray-600 font-medium hover:text-black">Services</a>
-          <button onClick={toggleModal} className="bg-black text-white px-6 py-2 rounded-full font-semibold">Login</button>
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-40">
+          <div className="absolute top-16 left-0 w-full bg-white shadow-lg z-20 p-6 flex flex-col space-y-4 text-center">
+            <a href="#home" className="text-gray-600 font-medium hover:text-black">Home</a>
+            <Link to="/about" className="text-gray-600 font-medium hover:text-black">About</Link>
+            <a href="#technology" className="text-gray-600 font-medium hover:text-black">Technology</a>
+            <a href="#services" className="text-gray-600 font-medium hover:text-black">Services</a>
+            <button onClick={toggleModal} className="bg-black text-white px-6 py-2 rounded-full font-semibold">Login</button>
+          </div>
         </div>
+
       )}
 
       {/* Main Content Section */}
@@ -123,19 +126,20 @@ const LandingPage = () => {
         {/* Left Section */}
         <div className="text-center md:text-left max-w-lg">
           {/* Tagline */}
-          <span className="bg-gray-200 text-gray-800 text-sm font-semibold px-4 py-1 rounded-full">
+          <span className="bg-gray-200 text-gray-800 text-xs sm:text-sm md:text-base font-semibold px-3 sm:px-4 py-1 rounded-full block text-center sm:inline">
             World's Most Adopted Mental Healthcare AI
           </span>
 
+
           {/* Main Heading */}
-          <h1 className="mt-3 text-5xl md:text-6xl leading-tight font-montserrat">
+          <h1 className="mt-3 text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-snug md:leading-tight font-montserrat text-center md:text-left">
             Revolutionizing <br />
             <span className="font-bold">Healthcare</span> With <br />
             <span className="font-bold">AI</span>
           </h1>
 
           {/* Subtext */}
-          <p className="mt-3 text-gray-600 text-lg leading-relaxed">
+          <p className="mt-3 text-gray-600 text-base sm:text-lg md:text-xl leading-normal sm:leading-relaxed text-center md:text-left">
             Mindspark helps medical professionals diagnose patients quickly and accurately,
             following DSM-5 guidelines, and ensures timely treatment. By bridging the gap
             between technology and compassionate care, it enhances accessibility and outcomes for
@@ -174,8 +178,8 @@ const LandingPage = () => {
       </div>
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-8 rounded-lg max-w-sm w-full relative">
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50 p-4">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md sm:max-w-sm md:max-w-lg relative">
             <button onClick={toggleModal} className="absolute top-2 right-2 text-gray-600 hover:text-gray-800">&times;</button>
 
             <h2 className="text-2xl font-semibold text-center mb-4">{isSignUp ? "Sign Up" : "Login"}</h2>
