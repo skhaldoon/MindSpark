@@ -165,12 +165,12 @@ const getChatMessages = async (req, res) => {
 // Create a new chat
 const createChat = async (req, res) => {
   try {
-    const { patientName, patientAge } = req.body;
+    const { patientName, patientAge, patientGender } = req.body;
     // Ensure valid input
-    if (!patientName || !patientAge) {
-      return res.status(400).json({ message: "Patient name and age are required." });
+    if (!patientName || !patientAge || !patientGender) {
+      return res.status(400).json({ message: "Patient name, age and gender are required." });
     }
-    const newChat = new Chat({ user: req.user.id, patientName, patientAge, messages: [] });
+    const newChat = new Chat({ user: req.user.id, patientName, patientAge, patientGender, messages: [] });
     await newChat.save();
     await User.findByIdAndUpdate(req.user.id, { $push: { chats: newChat._id } });
     res.status(201).json(newChat);
@@ -197,7 +197,7 @@ const addMessage = async (req, res) => {
       const chatHistory = chat.messages.map(msg => msg.text);
       const disorders = await detectDisorders(chatHistory, req);
       const treatments = await getTreatmentRecommendations(disorders, req);
-      const summary = await summarizeChat(chatHistory, req);
+      //const summary = await summarizeChat(chatHistory, req);
 
       // Ensure the folder exists
       const pdfDirectory = path.join(__dirname, "../generated_reports/");
@@ -207,7 +207,7 @@ const addMessage = async (req, res) => {
 
       // Generate PDF file path
       const pdfPath = path.join(pdfDirectory, `${chatId}.pdf`);
-      await generateChatPDF(pdfPath, chat.patientName , chat.patientAge , summary, disorders, treatments);
+      await generateChatPDF(pdfPath, chat.patientName , chat.patientAge , chat.patientGender , summary, disorders, treatments);
 
       // Generate the download link
       const pdfDownloadLink = `http://localhost:5000/api/chat/download-pdf/${chatId}`;
@@ -231,7 +231,7 @@ const addMessage = async (req, res) => {
 };
 
 // Function to generate PDF
-const generateChatPDF = async (filePath, username, age, summary, disorders, treatments) => {
+const generateChatPDF = async (filePath, username, age, gender,  summary, disorders, treatments) => {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ margin: 50 });
     const stream = fs.createWriteStream(filePath);
@@ -269,6 +269,7 @@ const generateChatPDF = async (filePath, username, age, summary, disorders, trea
     // Left aligned with spacing
     doc.text("Name: " + (username || "N/A"), 70, doc.y);
     doc.text("Age: " + (age || "N/A") , 70, doc.y);
+    doc.text("Gender: " + (gender || "N/A") , 70, doc.y);
     doc.moveDown(2);
 
     // CLINICAL SUMMARY (REMOVING UNWANTED TEXT)
@@ -368,6 +369,7 @@ const renameChat = async (req, res) => {
 
     chat.patientName = newChatName; // Rename chat using patient name field
     chat.patientAge = chat.patientAge;
+    chat.patientGender = chat.patientGender;
     await chat.save();
 
     res.json({ message: "Chat renamed successfully", chat });

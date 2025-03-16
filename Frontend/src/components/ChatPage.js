@@ -10,6 +10,7 @@ import icon from '../assets/icon.png';
 import WidthNormalRoundedIcon from '@mui/icons-material/WidthNormalRounded';
 import Divider from '@mui/material/Divider';
 import API_BASE_URL from "./Config";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Ammad 
 
@@ -21,6 +22,8 @@ const ChatPage = () => {
     const [selectedChat, setSelectedChat] = useState(null);
     const [chats, setChats] = useState([]);
     const [open, setOpen] = useState(true);
+    const [patientGender, setPatientGender] = useState("");
+
     // State to track recording status
     const [isRecording, setIsRecording] = useState(false);
     const mediaRecorderRef = useRef(null);
@@ -29,7 +32,7 @@ const ChatPage = () => {
     const [selectedModel, setSelectedModel] = useState(() => {
         const storedModel = localStorage.getItem("selectedModel");
         const isModelSelected = localStorage.getItem("modelSelectedByUser");
-        return isModelSelected ? storedModel || "default" : "default";
+        return isModelSelected ? storedModel || "premium" : "premium";
     });
     const [tempSelectedModel, setTempSelectedModel] = useState(selectedModel);
     const [showUpgradePopup, setShowUpgradePopup] = useState(false);
@@ -288,7 +291,7 @@ const ChatPage = () => {
     const fetchMessages = async (chatId) => {
         setSelectedChat(chatId); // Set selected chat
         const token = localStorage.getItem("token");
-        const selectedModel = localStorage.getItem("selectedModel") || "default";
+        const selectedModel = localStorage.getItem("selectedModel") || "premium";
 
 
         try {
@@ -315,7 +318,7 @@ const ChatPage = () => {
         if (!inputMessage.trim() || !selectedChat) return;
 
         const token = localStorage.getItem("token");
-        const selectedModel = localStorage.getItem("selectedModel") || "default";
+        const selectedModel = localStorage.getItem("selectedModel") || "premium";
 
         const user = JSON.parse(localStorage.getItem("user")) || {};
         // Step 1: Show the user's message immediately
@@ -367,11 +370,12 @@ const ChatPage = () => {
     const startNewChat = () => {
 
         setShowPatientModal(true); // Show patient details popup
+        setRightSidebarOpen(false);
     };
 
     const handlePatientSubmit = async () => {
-        if (!patientName.trim() || !patientAge.trim()) {
-            alert("Please enter patient name and age.");
+        if (!patientName.trim() || !patientAge.trim() || !patientGender.trim()) {
+            alert("Please enter patient name, age and gender.");
             return;
         }
 
@@ -383,7 +387,7 @@ const ChatPage = () => {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify({ patientName, patientAge })
+                body: JSON.stringify({ patientName, patientAge, patientGender })
             });
 
             const newChat = await response.json();
@@ -393,6 +397,7 @@ const ChatPage = () => {
             setShowPatientModal(false); // Close the popup
             setPatientName("");
             setPatientAge("");
+            setPatientGender("");
         } catch (error) {
             console.error("Error creating new chat:", error);
         }
@@ -470,12 +475,14 @@ const ChatPage = () => {
                             )}
 
                             {/* Logout Button */}
-                            <button
+                            <motion.button
                                 className="mt-3 w-full py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-all duration-150"
                                 onClick={logout} // ✅ Call logout function
+                                whileTap={{ scale: 0.95 }} // Slight press effect
+
                             >
                                 Logout
-                            </button>
+                            </motion.button>
                         </div>
                     )}
                 </div>
@@ -492,7 +499,7 @@ const ChatPage = () => {
 
                 {/* Sidebar (Overlay on Small Screens) */}
                 <aside
-                    className={`fixed  left-0 h-full w-64 p-4 shadow-lg flex flex-col transition-transform duration-300 z-50
+                    className={`fixed  left-0 top-0 h-full w-64 p-4 shadow-lg flex flex-col transition-transform duration-300 z-50
                         ${darkMode ? "bg-gray-800 text-white" : "bg-white text-black"}
                         ${open ? "translate-x-0" : "-translate-x-full"}
                         md:w-1/5 md:static md:shadow-md md:translate-x-0`}
@@ -506,13 +513,13 @@ const ChatPage = () => {
                         </Link>
                         <div
                             className="p-3 hover:bg-[#d9e4eb] border-solid rounded-md text-gray-600 font-medium hover:text-black cursor-pointer"
-                            onClick={() => setShowUpgradePopup(true)}
+                            onClick={() => {setShowUpgradePopup(true); toggleSidebar();}}
                         >
                             <BusinessCenterOutlinedIcon className="mr-2" /> Manage Subscription
                         </div>
 
                         <Divider className="" />
-                        <Link to="/chat" className="p-3 border-solid rounded-md bg-[#d9e4eb] text-black font-medium">
+                        <Link to="/chat" className="p-3 border-solid rounded-md bg-[#d9e4eb] text-black font-medium" onClick={toggleSidebar}>
                             <ChatOutlinedIcon className="mr-2" /> AI Chat Bot
                         </Link>
                         <Link to="/image" className="p-3 hover:bg-[#d9e4eb] border-solid rounded-md text-gray-600 font-medium hover:text-black">
@@ -568,44 +575,79 @@ const ChatPage = () => {
 
 
                 {/* Patient Details Popup */}
-                {showPatientModal && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                        <div className="bg-white p-6 rounded-xl shadow-xl w-[400px] flex flex-col">
-                            <h2 className="text-2xl font-semibold text-center mb-6">Enter Patient Details</h2>
+                <AnimatePresence>
+                    {showPatientModal && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3, ease: "easeInOut" }}
+                            className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                            <motion.div
+                                initial={{ scale: 0.8, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0.8, opacity: 0 }}
+                                transition={{ duration: 0.3, ease: "easeInOut" }}
+                                className="bg-white p-6 rounded-xl shadow-xl w-[400px] flex flex-col">
+                                <h2 className="text-2xl font-semibold text-center mb-6">Enter Patient Details</h2>
 
-                            <input
-                                type="text"
-                                placeholder="Patient Name"
-                                className="w-full p-3 border rounded-md mb-4"
-                                value={patientName}
-                                onChange={(e) => setPatientName(e.target.value)}
-                            />
+                                <input
+                                    type="text"
+                                    placeholder="Patient Name"
+                                    className="w-full p-3 border rounded-md mb-4"
+                                    value={patientName}
+                                    onChange={(e) => setPatientName(e.target.value)}
+                                />
 
-                            <input
-                                type="number"
-                                placeholder="Patient Age"
-                                className="w-full p-3 border rounded-md mb-4"
-                                value={patientAge}
-                                onChange={(e) => setPatientAge(e.target.value)}
-                            />
+                                <input
+                                    type="number"
+                                    placeholder="Patient Age"
+                                    className="w-full p-3 border rounded-md mb-4"
+                                    value={patientAge}
+                                    onChange={(e) => setPatientAge(e.target.value)}
+                                />
+                                {/* Gender Selection */}
+                                <div className="flex justify-around mb-4">
+                                    <label className="flex items-center space-x-2">
+                                        <input
+                                            type="radio"
+                                            name="gender"
+                                            value="Male"
+                                            checked={patientGender === "Male"}
+                                            onChange={(e) => setPatientGender(e.target.value)}
+                                        />
+                                        <span>Male</span>
+                                    </label>
+                                    <label className="flex items-center space-x-2">
+                                        <input
+                                            type="radio"
+                                            name="gender"
+                                            value="Female"
+                                            checked={patientGender === "Female"}
+                                            onChange={(e) => setPatientGender(e.target.value)}
+                                        />
+                                        <span>Female</span>
+                                    </label>
+                                </div>
 
-                            <div className="flex justify-between">
-                                <button
-                                    className="w-1/2 py-3 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium mr-2"
-                                    onClick={() => setShowPatientModal(false)}
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    className="w-1/2 py-3 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium"
-                                    onClick={handlePatientSubmit}
-                                >
-                                    Start Chat
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                                <div className="flex justify-between">
+                                    <button
+                                        className="w-1/2 py-3 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium mr-2"
+                                        onClick={() => setShowPatientModal(false)}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        className="w-1/2 py-3 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium"
+                                        onClick={handlePatientSubmit}
+                                    >
+                                        Start Chat
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
 
                 {/* Chat Section */}
@@ -698,7 +740,7 @@ const ChatPage = () => {
 
                 {/* Chat History Sidebar */}
                 <aside
-                    className={`fixed right-0 h-full w-64 p-4 shadow-lg flex flex-col transition-transform duration-300 z-50 md:z-0
+                    className={`fixed right-0 top-0 h-full w-64 p-4 shadow-lg flex flex-col transition-transform duration-300 z-50 md:z-0
                         ${darkMode ? "bg-gray-800 text-white" : "bg-white text-black"}
                         ${rightSidebarOpen ? "translate-x-0" : "translate-x-full"}
                         md:w-1/4 md:static md:shadow-md md:translate-x-0`}
@@ -706,8 +748,7 @@ const ChatPage = () => {
                     {/* Close Button (Only on Small Screens) */}
                     <button
                         onClick={toggleRightSidebar}
-                        className="absolute top-4 right-4 text-gray-500 hover:text-black md:hidden"
-                    >
+                        className="absolute top-4 right-4 text-gray-500 hover:text-black md:hidden">
                         <FaTimes size={20} />
                     </button>
 
@@ -717,7 +758,7 @@ const ChatPage = () => {
 
                     <div className="space-y-2">
                         {chats.map((chat, index) => (
-                            <div key={index} onClick={() => fetchMessages(chat._id)} className="flex justify-between items-center hover:text-black cursor-pointer border p-2 rounded relative">
+                            <div key={index} onClick={() =>{fetchMessages(chat._id); toggleRightSidebar();}} className="flex justify-between items-center hover:text-black cursor-pointer border p-2 rounded relative">
                                 {chat.patientName ? `${chat.patientName} (Age: ${chat.patientAge})` : `Chat ${chat._id.substring(0, 6)}`}
                                 <button onClick={() => toggleMenu(index)} className="relative menu-container">
                                     <FaEllipsisV size={16} />
@@ -737,78 +778,87 @@ const ChatPage = () => {
 
 
                 {/* Upgrade to Pro Popup */}
-                {showUpgradePopup && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                        <div className="bg-white p-6 rounded-xl shadow-xl w-[400px] flex flex-col">
-                            <h2 className={`text-2xl font-semibold text-center mb-6 ${darkMode ? "text-black" : "text-black"}`}>
-                                Upgrade Your AI Model
-                            </h2>
-                            <div className="space-y-4">
-                                {/* Premium Model Option */}
-                                <button
-                                    className={`flex items-center justify-between w-full p-4 rounded-lg border transition-all shadow-md
+                <AnimatePresence>
+                    {showUpgradePopup && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3, ease: "easeInOut" }}
+                            className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                            <motion.div
+                                initial={{ scale: 0.8, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0.8, opacity: 0 }}
+                                transition={{ duration: 0.3, ease: "easeInOut" }}
+                                className="bg-white p-6 rounded-xl shadow-xl w-[400px] flex flex-col">
+                                <h2 className={`text-2xl font-semibold text-center mb-6 ${darkMode ? "text-black" : "text-black"}`}>
+                                    Upgrade Your AI Model
+                                </h2>
+                                <div className="space-y-4">
+                                    {/* Premium Model Option */}
+                                    <button
+                                        className={`flex items-center justify-between w-full p-4 rounded-lg border transition-all shadow-md
     ${darkMode
-                                            ? tempSelectedModel === "premium"
-                                                ? "bg-blue-900 text-white border-blue-400" // Selected in dark mode
-                                                : "bg-gray-800 text-white border-gray-600" // Unselected in dark mode
-                                            : tempSelectedModel === "premium"
-                                                ? "bg-blue-100 text-black border-blue-500" // Selected in light mode
-                                                : "bg-white text-black border-gray-300" // Unselected in light mode
-                                        }`}
-                                    onClick={() => handleTempSelection("premium")}
-                                >
-                                    <div>
-                                        <p className="font-medium text-lg">💎 Premium Model</p>
-                                        <p className="text-sm">Best performance & highest accuracy</p>
-                                    </div>
-                                    <span className="font-semibold">$200</span>
-                                </button>
+                                                ? tempSelectedModel === "premium"
+                                                    ? "bg-blue-900 text-white border-blue-400" // Selected in dark mode
+                                                    : "bg-gray-800 text-white border-gray-600" // Unselected in dark mode
+                                                : tempSelectedModel === "premium"
+                                                    ? "bg-blue-100 text-black border-blue-500" // Selected in light mode
+                                                    : "bg-white text-black border-gray-300" // Unselected in light mode
+                                            }`}
+                                        onClick={() => handleTempSelection("premium")}
+                                    >
+                                        <div>
+                                            <p className="font-medium text-lg">💎 Premium Model</p>
+                                            <p className="text-sm">Best performance & highest accuracy</p>
+                                        </div>
+                                        <span className="font-semibold">$200</span>
+                                    </button>
 
 
 
 
-                                {/* Economical Model Option */}
-                                <button
-                                    className={`flex items-center justify-between w-full p-4 rounded-lg border transition-all shadow-md
+                                    {/* Economical Model Option */}
+                                    <button
+                                        className={`flex items-center justify-between w-full p-4 rounded-lg border transition-all shadow-md
     ${darkMode
-                                            ? tempSelectedModel === "economical"
-                                                ? "bg-blue-900 text-white border-blue-400" // Selected in dark mode
-                                                : "bg-gray-800 text-white border-gray-600" // Unselected in dark mode
-                                            : tempSelectedModel === "economical"
-                                                ? "bg-blue-100 text-black border-blue-500" // Selected in light mode
-                                                : "bg-white text-black border-gray-300" // Unselected in light mode
-                                        }`}
-                                    onClick={() => handleTempSelection("economical")}
-                                >
-                                    <div>
-                                        <p className="font-medium text-lg">⚡ Economical Model</p>
-                                        <p className="text-sm">Affordable & optimized for cost efficiency</p>
-                                    </div>
-                                    <span className="font-semibold">$30</span>
-                                </button>
+                                                ? tempSelectedModel === "economical"
+                                                    ? "bg-blue-900 text-white border-blue-400" // Selected in dark mode
+                                                    : "bg-gray-800 text-white border-gray-600" // Unselected in dark mode
+                                                : tempSelectedModel === "economical"
+                                                    ? "bg-blue-100 text-black border-blue-500" // Selected in light mode
+                                                    : "bg-white text-black border-gray-300" // Unselected in light mode
+                                            }`}
+                                        onClick={() => handleTempSelection("economical")}
+                                    >
+                                        <div>
+                                            <p className="font-medium text-lg">⚡ Economical Model</p>
+                                            <p className="text-sm">Affordable & optimized for cost efficiency</p>
+                                        </div>
+                                        <span className="font-semibold">$30</span>
+                                    </button>
 
-                            </div>
-                            {/* Confirmation and Cancel Buttons */}
-                            <div className="mt-4 flex justify-between">
-                                <button
-                                    className="w-1/2 py-3 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium mr-2"
-                                    onClick={cancelModelSelection}
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    className="w-1/2 py-3 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium"
-                                    onClick={confirmModelSelection}
-                                >
-                                    Confirm
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-
-
+                                </div>
+                                {/* Confirmation and Cancel Buttons */}
+                                <div className="mt-4 flex justify-between">
+                                    <button
+                                        className="w-1/2 py-3 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium mr-2"
+                                        onClick={cancelModelSelection}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        className="w-1/2 py-3 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium"
+                                        onClick={confirmModelSelection}
+                                    >
+                                        Confirm
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </div>
     );

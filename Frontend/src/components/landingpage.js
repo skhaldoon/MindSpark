@@ -3,7 +3,7 @@ import mainImage from '../assets/main.png';
 import { Link, useNavigate } from "react-router-dom";
 import API_BASE_URL from "./Config";
 import { Menu, X } from "lucide-react";
-import { faL } from "@fortawesome/free-solid-svg-icons";
+import { motion, AnimatePresence } from "framer-motion";
 
 
 const LandingPage = () => {
@@ -79,10 +79,13 @@ const LandingPage = () => {
   };
 
 
-
-
   return (
-    <div className="bg-[#d9e4eb] min-h-screen flex flex-col pt-5 md:pt-0 overflow-x-hidden">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      transition={{ duration: 0.5 }}
+      className="bg-[#d9e4eb] min-h-screen flex flex-col pt-5 md:pt-0 overflow-x-hidden">
       {/* Header Section */}
       <header className="fixed top-0 left-0 w-full bg-transparent backdrop-blur-md shadow-md z-50 flex justify-between items-center px-6 md:px-20 py-4 h-16 transition-all duration-300">
         <div className="text-2xl font-bold">MINDSPARK</div>
@@ -117,18 +120,29 @@ const LandingPage = () => {
       </header>
 
       {/* Mobile Navigation Menu */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-40">
-          <div className="absolute top-16 left-0 w-full bg-white shadow-lg z-20 p-6 flex flex-col space-y-4 text-center">
-            <a href="#home" className="text-gray-600 font-medium hover:text-black">Home</a>
-            <Link to="/about" className="text-gray-600 font-medium hover:text-black">About</Link>
-            <a href="#technology" className="text-gray-600 font-medium hover:text-black">Technology</a>
-            <a href="#services" className="text-gray-600 font-medium hover:text-black">Services</a>
-            <button onClick={toggleModal} className="bg-black text-white px-6 py-2 rounded-full font-semibold">Login</button>
-          </div>
-        </div>
-
-      )}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="fixed inset-0 bg-black bg-opacity-50 z-40">
+            <motion.div
+              initial={{ y: "-100%", opacity: 0 }}
+              animate={{ y: "0%", opacity: 1 }}
+              exit={{ y: "-100%", opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="absolute top-16 left-0 w-full bg-white shadow-lg z-20 p-6 flex flex-col space-y-4 text-center">
+              <a href="#home" className="text-gray-600 font-medium hover:text-black">Home</a>
+              <Link to="/about" className="text-gray-600 font-medium hover:text-black">About</Link>
+              <a href="#technology" className="text-gray-600 font-medium hover:text-black">Technology</a>
+              <a href="#services" className="text-gray-600 font-medium hover:text-black">Services</a>
+              <button onClick={toggleModal} className="bg-black text-white px-6 py-2 rounded-full font-semibold">Login</button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Main Content Section */}
       <div className="flex flex-col md:flex-row items-center justify-between px-6 md:px-20 mt-20 md:mt-32">
@@ -186,67 +200,79 @@ const LandingPage = () => {
         </div>
       </div>
       {/* Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50 p-4">
-          <div className="bg-white p-6 rounded-lg w-full max-w-md sm:max-w-sm md:max-w-lg relative">
-            <button onClick={toggleModal} className="absolute top-2 right-2 text-gray-600 hover:text-gray-800">&times;</button>
+      <AnimatePresence>
+        {isModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50 p-4">
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="bg-white p-6 rounded-lg w-full max-w-md sm:max-w-sm md:max-w-lg relative">
+              <button onClick={toggleModal} className="absolute top-2 right-2 text-gray-600 hover:text-gray-800">&times;</button>
 
-            <h2 className="text-2xl font-semibold text-center mb-4">{isSignUp ? "Sign Up" : "Login"}</h2>
-            {error && <p className="text-red-500 text-center">{error}</p>}
+              <h2 className="text-2xl font-semibold text-center mb-4">{isSignUp ? "Sign Up" : "Login"}</h2>
+              {error && <p className="text-red-500 text-center">{error}</p>}
 
-            <form className="space-y-4" onSubmit={handleSubmit}>
-              {isSignUp && (
-                <div>
-                  <label className="block text-gray-600">Full Name</label>
-                  <input type="text" name="fullName" value={formData.fullName} onChange={handleChange}
-                    placeholder="Enter your full name" className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none" required />
-                </div>
-              )}
-              <div>
-                <label className="block text-gray-600">Email</label>
-                <input type="email" name="email" value={formData.email} onChange={handleChange}
-                  placeholder="Enter your email" className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none" required />
-              </div>
-              <div>
-                <label className="block text-gray-600">Password</label>
-                <input type="password" name="password" value={formData.password} onChange={handleChange}
-                  placeholder="Enter your password" className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none" required />
-              </div>
-              {isSignUp && (
-                <div>
-                  <label className="block text-gray-600">Age</label>
-                  <input type="number" name="age" value={formData.age} onChange={handleChange}
-                    placeholder="Enter your age" className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none" required />
-                </div>
-              )}
-              <button
-                type="submit"
-                className="w-full bg-black text-white py-2 rounded-md font-semibold flex justify-center items-center h-10"
-                disabled={loading} // Disable button when loading
-              >
-                {loading ? (
-                  <div className="flex justify-center items-center">
-                    <svg className="animate-spin h-6 w-6 border-4 border-white border-t-transparent rounded-full" viewBox="0 0 24 24"></svg>
+              <form className="space-y-4" onSubmit={handleSubmit}>
+                {isSignUp && (
+                  <div>
+                    <label className="block text-gray-600">Full Name</label>
+                    <input type="text" name="fullName" value={formData.fullName} onChange={handleChange}
+                      placeholder="Enter your full name" className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none" required />
                   </div>
-                ) : (
-                  <span>{isSignUp ? "Sign Up" : "Login"}</span>
                 )}
-              </button>
+                <div>
+                  <label className="block text-gray-600">Email</label>
+                  <input type="email" name="email" value={formData.email} onChange={handleChange}
+                    placeholder="Enter your email" className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none" required />
+                </div>
+                <div>
+                  <label className="block text-gray-600">Password</label>
+                  <input type="password" name="password" value={formData.password} onChange={handleChange}
+                    placeholder="Enter your password" className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none" required />
+                </div>
+                {isSignUp && (
+                  <div>
+                    <label className="block text-gray-600">Age</label>
+                    <input type="number" name="age" value={formData.age} onChange={handleChange}
+                      placeholder="Enter your age" className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none" required />
+                  </div>
+                )}
+                <button
+                  type="submit"
+                  className="w-full bg-black text-white py-2 rounded-md font-semibold flex justify-center items-center h-10"
+                  disabled={loading} // Disable button when loading
+                >
+                  {loading ? (
+                    <div className="flex justify-center items-center">
+                      <svg className="animate-spin h-6 w-6 border-4 border-white border-t-transparent rounded-full" viewBox="0 0 24 24"></svg>
+                    </div>
+                  ) : (
+                    <span>{isSignUp ? "Sign Up" : "Login"}</span>
+                  )}
+                </button>
 
-            </form>
+              </form>
 
-            <div className="mt-4 text-center">
-              <p className="text-gray-600">
-                {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
-                <span onClick={switchToSignUp} className="text-black font-medium cursor-pointer">
-                  {isSignUp ? "Login" : "Sign Up"}
-                </span>
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+              <div className="mt-4 text-center">
+                <p className="text-gray-600">
+                  {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
+                  <span onClick={switchToSignUp} className="text-black font-medium cursor-pointer">
+                    {isSignUp ? "Login" : "Sign Up"}
+                  </span>
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 };
 
