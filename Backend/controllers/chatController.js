@@ -197,7 +197,7 @@ const addMessage = async (req, res) => {
       const chatHistory = chat.messages.map(msg => msg.text);
       const disorders = await detectDisorders(chatHistory, req);
       const treatments = await getTreatmentRecommendations(disorders, req);
-      //const summary = await summarizeChat(chatHistory, req);
+      const summary = await summarizeChat(chatHistory, req);
 
       // Ensure the folder exists
       const pdfDirectory = path.join(__dirname, "../generated_reports/");
